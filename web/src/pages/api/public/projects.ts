@@ -2,6 +2,8 @@ import { verifyAuthHeaderAndReturnScope } from "@/src/features/public-api/server
 import { cors, runMiddleware } from "@/src/features/public-api/server/cors";
 import { prisma } from "@langfuse/shared/src/db";
 import { isPrismaException } from "@/src/utils/exceptions";
+import { generateKeySet } from "@langfuse/shared";
+
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
@@ -21,6 +23,45 @@ export default async function handler(
     });
   // END CHECK AUTH
 
+  if (req.method === "POST") {
+    try {
+      const { userId }: any = authCheck.scope;
+      const { name, projectId } = req.body;
+      const { displaySk, pk, hashedSk, sk } = await generateKeySet();
+      const project = await prisma.project.create({
+        data: {
+          id: projectId,
+          name,
+          apiKeys: {
+            create: [
+              {
+                note: "default keys",
+                hashedSecretKey: hashedSk,
+                displaySecretKey: displaySk,
+                publicKey: pk,
+              },
+            ],
+          },
+          projectMembers: {
+            create: {
+              role: "OWNER",
+              userId,
+            },
+          },
+        },
+      });
+      return res.status(200).json({
+        id: project.id,
+        name: project.name,
+        primaryKey : pk,
+        secretKey : sk,
+        displaySk
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+  
   if (req.method === "GET") {
     try {
       const projects = await prisma.project.findMany({

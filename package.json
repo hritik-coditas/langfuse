@@ -69,5 +69,10 @@
         "pr": ":rocket: _This pull request is included in v${version}. See [${releaseName}](${releaseUrl}) for release notes._"
       }
     }
+  },
+  "dependencies": {
+    "@langfuse/shared": "workspace:^",
+    "@types/pg": "^8.11.6",
+    "pg": "^8.11.5"
   }
 }

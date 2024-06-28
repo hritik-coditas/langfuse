@@ -12,7 +12,7 @@ require("dotenv").config();
 
 import logger from "./logger";
 
-import { evalJobCreator, evalJobExecutor } from "./redis/consumer";
+// import { evalJobCreator, evalJobExecutor } from "./redis/consumer";
 import helmet from "helmet";
 
 const app = express();
@@ -62,19 +62,19 @@ if (isSentryEnabled) {
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 
-logger.info("Eval Job Creator started", evalJobCreator?.isRunning());
+// logger.info("Eval Job Creator started", evalJobCreator?.isRunning());
 
-logger.info("Eval Job Executor started", evalJobExecutor?.isRunning());
+// logger.info("Eval Job Executor started", evalJobExecutor?.isRunning());
 
-evalJobCreator?.on("failed", (job, err) => {
-  logger.error(err, `Eval Job with id ${job?.id} failed with error ${err}`);
-});
+// evalJobCreator?.on("failed", (job, err) => {
+//   logger.error(err, `Eval Job with id ${job?.id} failed with error ${err}`);
+// });
 
-evalJobCreator?.on("failed", (job, err) => {
-  logger.error(
-    err,
-    `Eval execution Job with id ${job?.id} failed with error ${err}`
-  );
-});
+// evalJobCreator?.on("failed", (job, err) => {
+//   logger.error(
+//     err,
+//     `Eval execution Job with id ${job?.id} failed with error ${err}`
+//   );
+// });
 
 export default app;
