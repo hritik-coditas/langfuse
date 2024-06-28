@@ -37,6 +37,7 @@ export const getPrompts = async (
       projectId: project_id,
       name,
     },
+    orderBy: [{ createdAt: "desc" }],
   })) as any;
 };
 
@@ -115,4 +116,25 @@ const getPromptByLabel = async ({
     );
 
   return prompt;
+};
+
+export const activatePrompt = async (id: string): Promise<Prompt> => {
+  const prompt = await prisma.prompt.findUnique({
+    where: { id },
+    select: { name: true },
+  });
+
+  if (!prompt) throw new LangfuseNotFoundError(`No prompt found with id ${id}`);
+
+  await prisma.prompt.updateMany({
+    where: { name: prompt.name },
+    data: { isActive: false },
+  });
+
+  const activatedPrompt = await prisma.prompt.update({
+    where: { id },
+    data: { isActive: true },
+  });
+
+  return activatedPrompt;
 };
