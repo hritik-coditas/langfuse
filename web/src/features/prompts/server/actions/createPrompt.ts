@@ -12,6 +12,7 @@ import { updatePromptTagsOnAllVersions } from "@/src/features/prompts/server/uti
 export type CreatePromptParams = CreatePromptTRPCType & {
   createdBy: string;
   prisma: PrismaClient;
+  isActive?: boolean;
 };
 
 export const createPrompt = async ({
@@ -24,6 +25,7 @@ export const createPrompt = async ({
   createdBy,
   prisma,
   tags,
+  isActive,
 }: CreatePromptParams) => {
   const latestPrompt = await prisma.prompt.findFirst({
     where: { projectId, name },
@@ -53,6 +55,7 @@ export const createPrompt = async ({
         version: latestPrompt?.version ? latestPrompt.version + 1 : 1,
         project: { connect: { id: projectId } },
         config: jsonSchema.parse(config),
+        isActive,
       },
     }),
   ];
@@ -81,6 +84,13 @@ export const createPrompt = async ({
         tags: finalTags,
       })),
     );
+
+  if (isActive) {
+    await prisma.prompt.updateMany({
+      where: { name, projectId },
+      data: { isActive: false },
+    });
+  }
 
   const [createdPrompt] = await prisma.$transaction(create);
 
