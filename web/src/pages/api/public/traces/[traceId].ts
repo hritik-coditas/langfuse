@@ -47,6 +47,11 @@ export default async function handler(
         id: traceId,
       },
     });
+    if (!trace) {
+      return res.status(404).json({
+        message: "Trace not found within authorized project",
+      });
+    }
     const observations = await prisma.observationView.findMany({
       select: {
         id: true,
